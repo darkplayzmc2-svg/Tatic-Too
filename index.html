@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Tactical Helper with Passcode</title>
+<style>
+body { font-family: Arial,sans-serif; background:#0d1117; color:#fff; margin:0; padding:20px;}
+h1 { text-align:center; color:#ff4d4d; }
+.container { max-width:700px; margin:20px auto; padding:20px; background:#161b22; border-radius:12px; display:none; }
+label { display:block; margin-top:12px; }
+select, input { width:100%; padding:8px; margin-top:4px; border-radius:6px; border:none; }
+button { margin-top:20px; padding:10px 15px; border:none; border-radius:8px; background:#00ff99; color:#000; cursor:pointer; width:100%; font-weight:bold; }
+.output { margin-top:20px; background:#0d1117; padding:12px; border-radius:8px; border:1px solid #333; font-size:16px; }
+.tip { color:#ffcc00; margin-top:6px; font-size:14px; }
+.strategy-option { margin-top:8px; padding:6px; background:#1b222b; border-radius:6px; }
+
+/* Modal */
+.modal { display:block; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); color:#fff; z-index:1000; }
+.modal-content { max-width:500px; margin:100px auto; padding:20px; background:#161b22; border-radius:12px; text-align:center; }
+.modal button { background:#ff4d4d; color:#fff; }
+.modal a { color:#00ff99; text-decoration:none; font-weight:bold; }
+input.pass { width:50%; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- Welcome / Telegram & YouTube Modal -->
+<div id="welcomeModal" class="modal">
+  <div class="modal-content">
+    <h2>Welcome to FF Tactical Helper!</h2>
+    <p>Please <a href="https://t.me/YourTelegramChannel" target="_blank">join our Telegram channel</a><br>
+       and <a href="https://www.youtube.com/@FourthHokageFF" target="_blank">subscribe to our YouTube channel</a>.</p>
+    <p>Enter the secret passcode to continue:</p>
+    <input type="text" id="passInput" class="pass" placeholder="Enter passcode">
+    <button onclick="checkPass()">Submit</button>
+    <p id="errorMsg" style="color:#ff4d4d;margin-top:10px;"></p>
+  </div>
+</div>
+
+<div class="container" id="mainApp">
+<h1>FF Tactical Decision Helper</h1>
+
+<label>Health Level:</label>
+<select id="health">
+  <option value="low">Low (&lt;40%)</option>
+  <option value="medium">Medium (40-70%)</option>
+  <option value="high">High (&gt;70%)</option>
+</select>
+
+<label>Number of Enemies Nearby:</label>
+<select id="enemies">
+  <option value="1">1 Enemy</option>
+  <option value="2">2 Enemies</option>
+  <option value="3">3+ Enemies</option>
+</select>
+
+<label>Available Weapons:</label>
+<select id="weapon">
+  <option value="smg">SMG / Close Range</option>
+  <option value="assault">Assault / Medium Range</option>
+  <option value="sniper">Sniper / Long Range</option>
+  <option value="mixed">Mixed / Multiple</option>
+</select>
+
+<label>Zone Safety:</label>
+<select id="zone">
+  <option value="safe">Safe Zone</option>
+  <option value="unsafe">Unsafe / Edge</option>
+</select>
+
+<button onclick="calculateStrategy()">Get Strategy</button>
+
+<div class="output" id="strategyOutput">
+Enter your situation above and click "Get Strategy"
+</div>
+</div>
+
+<script>
+function checkPass() {
+  const input = document.getElementById('passInput').value;
+  const errorMsg = document.getElementById('errorMsg');
+  if(input === '999') {
+    document.getElementById('welcomeModal').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+  } else {
+    errorMsg.innerText = 'Incorrect passcode! Try again.';
+  }
+}
+
+function calculateStrategy() {
+  const health = document.getElementById('health').value;
+  const enemies = document.getElementById('enemies').value;
+  const weapon = document.getElementById('weapon').value;
+  const zone = document.getElementById('zone').value;
+
+  let options = [];
+  let tips = [];
+
+  if (health === 'low' && enemies !== '1') tips.push("High risk! Avoid confrontation or retreat immediately.");
+  if (enemies === '3') tips.push("You are outnumbered! Use cover or escape.");
+
+  if (health === 'low') {
+    options.push("Best: Retreat to safe cover and heal.");
+    options.push("Alternative: Use smoke grenade for distraction, then escape.");
+    options.push("Risky: Engage only if enemy is distracted or alone.");
+  } else if (health === 'medium') {
+    if (enemies === '1') {
+      options.push("Best: Engage carefully with cover.");
+      options.push("Alternative: Flank the enemy from side.");
+      options.push("Risky: Push aggressively, may take damage.");
+    } else if (enemies === '2') {
+      options.push("Best: Avoid direct fight, reposition.");
+      options.push("Alternative: Take cover and engage one by one.");
+      options.push("Risky: Split attention and fight both.");
+    } else {
+      options.push("Best: Move to safer zone and wait.");
+      options.push("Alternative: Use grenades to distract enemies.");
+      options.push("Risky: Engage multiple enemies, very dangerous.");
+    }
+  } else {
+    if (enemies === '1') {
+      options.push("Best: Push aggressively and eliminate enemy.");
+      options.push("Alternative: Take cover and bait them.");
+      options.push("Risky: Rush without cover.");
+    } else if (enemies === '2') {
+      options.push("Best: Use cover and eliminate one at a time.");
+      options.push("Alternative: Retreat and lure them into trap.");
+      options.push("Risky: Engage both simultaneously.");
+    } else {
+      options.push("Best: Avoid fight, reposition to safe zone.");
+      options.push("Alternative: Use terrain and wait for support.");
+      options.push("Risky: Engage multiple enemies at once.");
+    }
+  }
+
+  if (weapon === 'sniper') tips.push("Keep distance and use sniper for long-range engagement.");
+  else if (weapon === 'smg') tips.push("Close range combat preferred; stay mobile.");
+  else if (weapon === 'assault') tips.push("Medium range engagements; balance cover and movement.");
+
+  if (zone === 'unsafe') tips.push("Move toward safe zone to avoid extra damage.");
+
+  const outputDiv = document.getElementById('strategyOutput');
+  outputDiv.innerHTML = `<strong>Strategy Options:</strong>`;
+  options.forEach((opt, i) => {
+    outputDiv.innerHTML += `<div class="strategy-option"><strong>${i+1}:</strong> ${opt}</div>`;
+  });
+  if (tips.length > 0) {
+    outputDiv.innerHTML += `<div class="tip"><strong>Additional Tips:</strong><br>${tips.join('<br>')}</div>`;
+  }
+}
+</script>
+
+</body>
+</html>
